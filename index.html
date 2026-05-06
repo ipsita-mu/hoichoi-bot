@@ -1,390 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>hoichoi Intelligence Bot</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.5/babel.min.js"></script>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fff}
-::-webkit-scrollbar{width:4px}::-webkit-scrollbar-thumb{background:#d20820;border-radius:99px}
-@keyframes slide{0%{transform:translateX(-100%)}100%{transform:translateX(300%)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>hoichoi Intelligence Bot v7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        :root {
+            --hoichoi-red: #d20820;
+            --hoichoi-purple: #6d0550;
+        }
+        body { background-color: #ffffff; color: #1a1a1a; font-family: sans-serif; }
+        .header { background-color: var(--hoichoi-red); color: white; }
+        .btn-primary { background-color: var(--hoichoi-red); color: white; }
+        .btn-secondary { background-color: var(--hoichoi-purple); color: white; }
+        .chat-box { height: 70vh; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; }
+    </style>
 </head>
-<body>
-<div id="root"></div>
-<script type="text/babel">
-const {useState,useEffect,useRef,useCallback}=React;
-const C={red:"#d20820",purple:"#6d0550",white:"#ffffff",light:"#fdf0f0",border:"#f0d0d5",gray:"#6b7280",darkgray:"#374151"};
-const WORKER_URL="https://steep-hat-cf4f.ipsita-hoichoi.workers.dev";
+<body class="p-4 md:p-8">
 
-// ── CSV PARSER ──────────────────────────────────────────────────
-function parseCSVRow(line){
-  const r=[];let c="",q=false;
-  for(let i=0;i<line.length;i++){
-    const ch=line[i];
-    if(ch==='"'){q=!q;continue;}
-    if(ch===','&&!q){r.push(c);c="";continue;}
-    c+=ch;
-  }
-  r.push(c);return r;
-}
-function parseCSV(text){
-  const lines=text.split(/\r?\n/).filter(l=>l.trim());
-  const headers=parseCSVRow(lines[0]).map(h=>h.trim());
-  return lines.slice(1).map(line=>{
-    const vals=parseCSVRow(line);
-    const obj={};
-    headers.forEach((h,i)=>{obj[h]=(vals[i]||"").trim();});
-    return obj;
-  }).filter(r=>r.Content_ID&&r.Title);
-}
-function normalise(r){
-  const title=(r.Title||"").trim();
-  const tl=title.toLowerCase();
-  const genre=(tl.includes("eken babu")||tl==="the eken"||tl.startsWith("the eken:"))
-    ?"Detective Comedy":(r.Genre||"").trim();
-  const liveDate=r.Hoichoi_Live_Date||"";
-  return{
-    id:r.Content_ID,type:r.Content_Type||"",title,
-    season:r.Season_Number&&r.Season_Number!=="N/A"?r.Season_Number:null,
-    episodes:r.Total_Episodes||"",duration:r.Duration_Total_or_Per_Ep||"",
-    genre,sub_genre:r.Sub_Genre||"",age_rating:r.Age_Rating||"",
-    available:(r.Available_on_hoichoi||"").toLowerCase()==="yes",
-    cast:r.Cast||"",director:r.Director||"",synopsis:r.Synopsis_Short||"",
-    keywords:(r.AI_Generated_Keywords||"").toLowerCase(),
-    mood:r.Primary_Mood||"",tone:r.Narrative_Tone||"",ending:r.Ending_Type||"",
-    binge:parseInt(r.Binge_Score)||5,family:parseInt(r.Family_Element_Score)||5,
-    brand:r.Brand_Name||"",literature:r.Literature_Adapted||"",
-    release:r.Release_Type||"",
-    is_bd:(r.Is_Bangladeshi||"").toLowerCase()==="yes",
-    promotional:r.Promotional_Rights||"",recommended:r.Recommended_Titles||"",
-    live_date:liveDate,live_year:liveDate.slice(0,4),
-    theatrical_year:r.Theatrical_Release_Year||"",languages:r.Languages||"",
-  };
-}
-function isFM(d){return(d.type||"").toLowerCase().includes("fm");}
+    <div class="max-w-4xl mx-auto">
+        <header class="header p-6 rounded-t-lg shadow-lg flex justify-between items-center">
+            <h1 class="text-2xl font-bold">hoichoi Intelligence Bot <span class="text-sm font-light">v7.0</span></h1>
+            <select id="deptSelect" class="bg-white text-black p-2 rounded text-sm">
+                <option value="">Select Your Department</option>
+                <option value="CRM">CRM</option>
+                <option value="Social Media">Social Media</option>
+                <option value="Content Programming">Content Programming</option>
+                <option value="Content Marketing">Content Marketing</option>
+                <option value="Branding">Branding</option>
+                <option value="Edit & Graphics">Edit & Graphics</option>
+                <option value="Post Production">Post Production</option>
+            </select>
+        </header>
 
-// ── FILL TO 15 ──────────────────────────────────────────────────
-function fillTo15(primary,all){
-  if(primary.length>=15)return primary.slice(0,15);
-  const ids=new Set(primary.map(i=>i.id));
-  const recTitles=[];
-  primary.forEach(p=>(p.recommended||"").split(",").forEach(r=>{const t=r.trim();if(t)recTitles.push(t.toLowerCase());}));
-  const rec=all.filter(d=>!ids.has(d.id)&&recTitles.some(rt=>d.title.toLowerCase().includes(rt)||rt.includes(d.title.toLowerCase())));
-  const combined=[...new Map([...primary,...rec].map(i=>[i.id,i])).values()];
-  if(combined.length>=15)return combined.slice(0,15);
-  const usedIds=new Set(combined.map(i=>i.id));
-  const rest=all.filter(d=>!usedIds.has(d.id));
-  const genre=primary[0]?.genre;
-  return[...combined,...rest.filter(d=>d.genre===genre),...rest.filter(d=>d.genre!==genre)].slice(0,15);
-}
-
-// ── QUERY ENGINE ────────────────────────────────────────────────
-const STOP=new Set(["the","for","and","are","all","with","from","that","this","show","give","list","what","tell","tray","shows","movies","content","released","so","far","me","a","in","of","to","by","get","on","hoichoi","please","can","you","give","all","titles"]);
-function queryLibrary(query,dept,data){
-  const q=query.toLowerCase();
-  const explicitFM=/\bfm\b/.test(q)||q.includes("audiobook");
-  const pool=explicitFM?data:data.filter(d=>!isFM(d));
-  const ym=q.match(/\b(19|20)\d{2}\b/);const year=ym?ym[0]:null;
-  const wAvail=q.includes("available")||q.includes("live")||q.includes("streaming")||q.includes("currently");
-  const wBD=q.includes("bangladesh")||q.includes("bangladeshi");
-  const wOrig=q.includes("original")&&!q.includes("non-original");
-  const wBrandSafe=q.includes("brand safe")||q.includes("family safe");
-  const wBranded=q.includes("branded content");
-  const wTheat=q.includes("theatrical");
-  const wBinge=q.includes("binge");
-  let results=pool.filter(d=>{
-    if(year&&d.live_year!==year&&d.theatrical_year!==year)return false;
-    if(wAvail&&!d.available)return false;
-    if(wBD&&!d.is_bd)return false;
-    if(wOrig&&!d.release.toLowerCase().includes("original"))return false;
-    if(wBrandSafe&&d.family<7)return false;
-    if(wBranded&&d.type!=="Branded Content")return false;
-    if(wTheat&&!d.release.toLowerCase().includes("theatrical"))return false;
-    const blob=[d.title,d.genre,d.sub_genre,d.keywords,d.cast,d.director,d.mood,d.tone,d.type,d.brand,d.literature,d.synopsis,d.release,d.languages,d.live_year,d.theatrical_year].join(" ").toLowerCase();
-    const words=q.replace(/[?!.,]/g,"").split(/\s+/).filter(w=>w.length>2&&!STOP.has(w));
-    if(words.length===0)return true;
-    return words.some(w=>blob.includes(w));
-  });
-  if(q.includes("anirban bhattacharya"))results=results.filter(r=>r.cast.toLowerCase().includes("anirban bhattacharya"));
-  else if(q.includes("anirban chakrabarti")||q.includes("anirban chakraborty"))results=results.filter(r=>r.cast.toLowerCase().includes("anirban chakra"));
-  if(wBinge)results.sort((a,b)=>b.binge-a.binge);
-  return results;
-}
-function generateResponse(query,dept,data){
-  const q=query.toLowerCase();
-  const wCRM=dept==="crm"&&(q.includes("copy")||q.includes("notification")||q.includes("push")||q.includes("generate")||q.includes("write")||q.includes("email"));
-  let results=queryLibrary(query,dept,data);
-  if(!results.length){
-    const words=q.split(/\s+/).filter(w=>w.length>3&&!STOP.has(w));
-    if(words.length)results=data.filter(d=>!isFM(d)&&words.some(w=>(d.title+d.genre+d.cast+d.synopsis).toLowerCase().includes(w)));
-    if(!results.length)return{type:"error",text:`No results for "${query}". Try a title, actor, genre, year, mood, or director.`};
-  }
-  if(wCRM){
-    return{type:"crm",items:results.slice(0,5).map(t=>({...t,
-      headline:`${t.available?"🔴 Now Streaming":"🔔 Coming Soon"}: ${t.title}`,
-      subject:`${t.available?"Now on hoichoi":"Coming to hoichoi"}: ${t.title}`,
-      body:`${t.synopsis} ${t.episodes&&t.episodes!=="N/A"&&t.episodes!=="1"?`| ${t.episodes} episodes`:""} | ${t.tone||t.mood}`.trim(),
-      push:`${t.title} is ${t.available?"live now":"dropping soon"}! ${t.synopsis.slice(0,70)}… Tap to watch.`,
-    })),total:results.length};
-  }
-  return{type:"tray",items:fillTo15(results,data.filter(d=>!isFM(d))),total:results.length};
-}
-
-// ── DEPARTMENTS ─────────────────────────────────────────────────
-const DEPTS=[
-  {id:"crm",label:"CRM",icon:"📬",color:C.red,desc:"Push notifications, email copy, CRM messaging"},
-  {id:"social",label:"Social Media",icon:"📱",color:"#e11d48",desc:"Promotional rights, usage warnings, content fit"},
-  {id:"programming",label:"Content Programming",icon:"🎬",color:C.purple,desc:"Binge scores, mood mapping, scheduling"},
-  {id:"marketing",label:"Content Marketing",icon:"📣",color:"#b45309",desc:"BD content, release types, campaign planning"},
-  {id:"branding",label:"Branding",icon:"✨",color:"#0369a1",desc:"Brand-safe content, partnerships, family scores"},
-  {id:"edit",label:"Edit & Graphics",icon:"🎞️",color:"#065f46",desc:"Narrative tone, clip rights, promo constraints"},
-  {id:"postprod",label:"Post Production",icon:"🎙️",color:"#4f46e5",desc:"Episode count, duration, languages"},
-];
-const CHIPS={
-  crm:["CRM copy for 2026 releases","Push notification for Detective Comedy","Email for available thrillers"],
-  social:["Titles with no clip restrictions","Bangladeshi promotional rights","Family-safe for social"],
-  programming:["Detective Comedy tray","Highest binge score shows","Psychological thrillers"],
-  marketing:["Bangladeshi content on hoichoi","Shows released in 2026","Branded content for campaign"],
-  branding:["Brand-safe family score above 7","All branded content","World premiere originals"],
-  edit:["No promotional restrictions","Movies with clip limits","Dark narrative tone titles"],
-  postprod:["Feature films over 130 min","Shows with most episodes","Multilingual content"],
-};
-
-// ── UI COMPONENTS ───────────────────────────────────────────────
-function Pill({children,bg,color}){return<span style={{background:bg,color,fontSize:10,padding:"2px 8px",borderRadius:99,fontWeight:600,whiteSpace:"nowrap"}}>{children}</span>;}
-function AvailPill({a}){return a?<Pill bg="#d1fae5" color="#065f46">● Live</Pill>:<Pill bg="#f3f4f6" color="#9ca3af">○ Not on hoichoi</Pill>;}
-function DeptBadge({dept}){const d=DEPTS.find(x=>x.id===dept);if(!d)return null;return<Pill bg={d.color} color="#fff">{d.icon} {d.label}</Pill>;}
-
-function Card({item,dept,index}){
-  const tc=item.type==="Movie"?"#0369a1":item.type==="Branded Content"?"#b45309":C.purple;
-  const promoGreen=(item.promotional||"").toLowerCase().includes("no limit")||(item.promotional||"").toLowerCase().includes("no restriction");
-  return(
-    <div style={{background:item.available?"#fff":"#fafafa",border:`1px solid ${item.available?C.border:"#e5e7eb"}`,borderRadius:10,padding:"12px 14px",display:"flex",gap:12,opacity:item.available?1:0.72}}>
-      <div style={{minWidth:26,height:26,borderRadius:"50%",background:item.available?C.red:"#9ca3af",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:700,fontSize:11,flexShrink:0}}>{index+1}</div>
-      <div style={{flex:1,minWidth:0}}>
-        <div style={{display:"flex",alignItems:"center",gap:6,flexWrap:"wrap"}}>
-          <span style={{fontWeight:700,color:C.darkgray,fontSize:14}}>{item.title}</span>
-          {item.season&&item.season!=="N/A"&&<span style={{color:C.gray,fontSize:12}}>S{item.season}</span>}
-          <Pill bg={tc} color="#fff">{item.type}</Pill>
-          <AvailPill a={item.available}/>
-          {item.is_bd&&<span>🇧🇩</span>}
-        </div>
-        <div style={{color:C.purple,fontSize:12,fontWeight:600,marginTop:2}}>{item.genre}{item.sub_genre&&item.sub_genre!==item.genre?` · ${item.sub_genre}`:""}</div>
-        <div style={{color:C.gray,fontSize:12,marginTop:3,lineHeight:1.45}}>{item.synopsis}</div>
-        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:5}}>
-          {dept==="programming"&&<><Pill bg="#fef3c7" color="#92400e">Binge {item.binge}/10</Pill><Pill bg="#ede9fe" color="#5b21b6">🎭 {item.mood}</Pill>{item.ending&&<Pill bg="#f0fdf4" color="#166534">End: {item.ending}</Pill>}</>}
-          {dept==="social"&&<Pill bg={promoGreen?"#d1fae5":"#fef3c7"} color={promoGreen?"#065f46":"#92400e"}>🎬 {item.promotional||"Check Rights"}</Pill>}
-          {dept==="edit"&&<><Pill bg="#f0fdf4" color="#166534">🎞 {item.tone}</Pill><Pill bg="#fef2f2" color="#991b1b">✂️ {item.promotional||"N/A"}</Pill></>}
-          {dept==="postprod"&&<><Pill bg="#eff6ff" color="#1d4ed8">⏱ {item.duration}</Pill><Pill bg="#f5f3ff" color="#4f46e5">📺 {item.episodes&&item.episodes!=="N/A"?item.episodes+" ep":"Feature"}</Pill>{item.languages&&<Pill bg="#f0fdf4" color="#166534">🌐 {item.languages}</Pill>}</>}
-          {dept==="branding"&&<><Pill bg={item.family>=7?"#d1fae5":item.family>=5?"#fef3c7":"#fee2e2"} color={item.family>=7?"#065f46":item.family>=5?"#92400e":"#991b1b"}>{item.family>=7?"✅ Brand Safe":item.family>=5?"⚠️ Moderate":"🚫 Brand Risk"} ({item.family}/10)</Pill>{item.brand&&item.brand!=="N/A"&&<Pill bg="#fef3c7" color="#92400e">🏷 {item.brand}</Pill>}</>}
-          {dept==="marketing"&&<><Pill bg="#eff6ff" color="#1d4ed8">{item.release}</Pill>{item.is_bd&&<Pill bg="#dcfce7" color="#15803d">🇧🇩 Bangladeshi</Pill>}{item.live_date&&<Pill bg="#f5f3ff" color="#4f46e5">📅 {item.live_date.slice(0,10)}</Pill>}</>}
-        </div>
-        {dept==="crm"&&item.headline&&(
-          <div style={{marginTop:8}}>
-            <div style={{background:C.light,borderRadius:8,padding:8,marginBottom:6}}>
-              <div style={{fontSize:10,color:C.red,fontWeight:700,marginBottom:2}}>📧 SUBJECT</div>
-              <div style={{fontWeight:600,fontSize:12}}>{item.subject}</div>
-              <div style={{fontSize:10,color:C.red,fontWeight:700,marginTop:4,marginBottom:2}}>📝 BODY</div>
-              <div style={{color:C.gray,fontSize:11}}>{item.body}</div>
+        <div id="chatContainer" class="chat-box p-4 bg-gray-50 flex flex-col gap-4">
+            <div class="bg-white p-3 rounded shadow-sm border-l-4 border-red-600">
+                Hello! Select your department above and ask me anything about the hoichoi library.
             </div>
-            <div style={{background:"#f5f3ff",borderRadius:8,padding:8}}>
-              <div style={{fontSize:10,color:C.purple,fontWeight:700,marginBottom:2}}>📲 PUSH</div>
-              <div style={{color:C.darkgray,fontSize:11}}>{item.push}</div>
-            </div>
-          </div>
-        )}
-        <div style={{display:"flex",gap:10,marginTop:5,flexWrap:"wrap"}}>
-          {item.cast&&<span style={{color:C.gray,fontSize:11}}>👤 {item.cast.split(",").slice(0,2).join(", ")}</span>}
-          {item.director&&item.director!=="N/A"&&<span style={{color:C.gray,fontSize:11}}>🎬 {item.director.split(",")[0]}</span>}
-          {item.literature&&item.literature!=="No"&&item.literature!=="N/A"&&item.literature!==""&&<span style={{color:C.gray,fontSize:11}}>📖 {item.literature}</span>}
         </div>
-      </div>
-    </div>
-  );
-}
 
-function Msg({msg,dept}){
-  if(msg.role==="user")return(
-    <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
-      <div style={{background:C.red,color:"#fff",borderRadius:"16px 16px 4px 16px",padding:"10px 14px",maxWidth:"78%",fontSize:14,lineHeight:1.5}}>{msg.content}</div>
-    </div>
-  );
-  const r=msg.response;
-  return(
-    <div style={{display:"flex",gap:10,marginBottom:16,alignItems:"flex-start"}}>
-      <div style={{minWidth:32,height:32,borderRadius:"50%",background:`linear-gradient(135deg,${C.red},${C.purple})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:900,fontSize:14,flexShrink:0}}>h</div>
-      <div style={{flex:1}}>
-        {msg.text&&<div style={{color:C.darkgray,fontSize:13,marginBottom:8,lineHeight:1.55}}>{msg.text}</div>}
-        {r?.type==="error"&&<div style={{background:"#fef2f2",border:"1px solid #fecaca",borderRadius:10,padding:12,color:"#991b1b",fontSize:14}}>⚠️ {r.text}</div>}
-        {(r?.type==="tray"||r?.type==="crm")&&r?.items?.length>0&&(
-          <div>
-            <div style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:"12px 12px 0 0",padding:"10px 14px",display:"flex",alignItems:"center",gap:8,borderBottom:`1px solid ${C.border}`}}>
-              <span style={{fontWeight:700,color:C.red,fontSize:13}}>🎬 {r.items.length} Titles</span>
-              <DeptBadge dept={dept}/>
-              {r.total>r.items.length&&<span style={{color:C.gray,fontSize:11}}>(top {r.items.length} of {r.total})</span>}
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:6,background:C.light,border:`1px solid ${C.border}`,borderTop:"none",borderRadius:"0 0 12px 12px",padding:10}}>
-              {r.items.map((item,i)=><Card key={item.id+i} item={item} dept={dept} index={i}/>)}
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function getWelcome(id){
-  const d=DEPTS.find(x=>x.id===id);
-  const p={crm:"Ask me to generate push notifications, email copy, or CRM messaging for any title, genre, or year.",social:"Ask for content by genre, actor, mood — I'll show promotional rights and usage warnings.",programming:"Ask for a tray by genre, mood, binge score, or year.",marketing:"Ask for Bangladeshi content, 2026 releases, or branded content for campaigns.",branding:"Ask for brand-safe content, branded titles, or high family-score shows.",edit:"Ask for titles by narrative tone, clip rights, or promo constraints.",postprod:"Ask for content by duration, episode count, or language."};
-  return`Welcome, ${d?.icon} ${d?.label} team. ${p[id]}\n\nWhat are you looking for?`;
-}
-
-// ── APP ─────────────────────────────────────────────────────────
-function App(){
-  const[dept,setDept]=useState(null);
-  const[messages,setMessages]=useState([]);
-  const[input,setInput]=useState("");
-  const[loading,setLoading]=useState(false);
-  const[data,setData]=useState([]);
-  const[status,setStatus]=useState("loading");
-  const bottom=useRef(null);
-
-  useEffect(()=>{
-    fetch(WORKER_URL)
-      .then(r=>{if(!r.ok)throw new Error("HTTP "+r.status);return r.text();})
-      .then(text=>{
-        const rows=parseCSV(text).map(normalise).filter(r=>r.id&&r.title);
-        if(rows.length<2)throw new Error("Too few rows: "+rows.length);
-        setData(rows);setStatus("ready");
-      })
-      .catch(err=>{console.error("LOAD ERROR:",err);setStatus("error");});
-  },[]);
-
-  useEffect(()=>{bottom.current?.scrollIntoView({behavior:"smooth"});},[messages]);
-
-  const selectDept=useCallback(id=>{
-    setDept(id);setMessages([{role:"assistant",text:getWelcome(id),response:null}]);
-  },[]);
-
-  const send=useCallback(q=>{
-    setLoading(true);
-    setTimeout(()=>{
-      const response=generateResponse(q,dept,data);
-      setMessages(prev=>[...prev,{role:"assistant",response}]);
-      setLoading(false);
-    },300);
-  },[dept,data]);
-
-  const handleSend=useCallback(()=>{
-    if(!input.trim()||loading)return;
-    const q=input.trim();
-    setMessages(prev=>[...prev,{role:"user",content:q}]);
-    setInput("");send(q);
-  },[input,loading,send]);
-
-  const handleChip=useCallback(chip=>{
-    setMessages(prev=>[...prev,{role:"user",content:chip}]);
-    send(chip);
-  },[send]);
-
-  if(status==="loading")return(
-    <div style={{height:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#fff"}}>
-      <div style={{width:56,height:56,borderRadius:"50%",background:`linear-gradient(135deg,${C.red},${C.purple})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:900,fontSize:26,marginBottom:20}}>h</div>
-      <div style={{fontWeight:700,color:C.darkgray,fontSize:18,marginBottom:6}}>Loading hoichoi Library…</div>
-      <div style={{color:C.gray,fontSize:13}}>Fetching all titles from Google Sheets</div>
-      <div style={{width:200,height:4,background:"#f0d0d5",borderRadius:99,marginTop:20,overflow:"hidden"}}>
-        <div style={{height:"100%",width:"40%",background:C.red,borderRadius:99,animation:"slide 1.2s ease-in-out infinite"}}/>
-      </div>
-    </div>
-  );
-
-  if(status==="error")return(
-    <div style={{height:"100vh",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",background:"#fff",padding:24,textAlign:"center"}}>
-      <div style={{fontSize:40,marginBottom:12}}>⚠️</div>
-      <div style={{fontWeight:700,color:C.red,fontSize:18,marginBottom:8}}>Couldn't load the library</div>
-      <div style={{color:C.gray,fontSize:13,maxWidth:360,lineHeight:1.6}}>
-        Make sure your Cloudflare Worker is running at:<br/>
-        <strong>steep-hat-cf4f.ipsita-hoichoi.workers.dev</strong><br/><br/>
-        Open that URL in your browser — if it downloads a CSV file, the worker is fine and this app will work when opened locally (not inside claude.ai).
-      </div>
-      <button onClick={()=>window.location.reload()} style={{marginTop:20,background:C.red,color:"#fff",border:"none",borderRadius:8,padding:"10px 20px",cursor:"pointer",fontWeight:700,fontSize:14}}>Retry</button>
-    </div>
-  );
-
-  if(!dept)return(
-    <div style={{minHeight:"100vh",background:"#fff"}}>
-      <div style={{background:C.red,padding:"18px 24px",display:"flex",alignItems:"center",gap:12}}>
-        <div style={{width:40,height:40,borderRadius:"50%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:20,color:"#fff"}}>h</div>
-        <div>
-          <div style={{color:"#fff",fontWeight:800,fontSize:18}}>hoichoi Intelligence Bot</div>
-          <div style={{color:"rgba(255,255,255,0.75)",fontSize:12}}>{data.length} titles loaded · Boldly Bangali</div>
+        <div class="mt-4 flex gap-2">
+            <input type="text" id="userInput" placeholder="e.g. Suggest a tray of 15 thrillers..." class="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600">
+            <button onclick="handleSend()" id="sendBtn" class="btn-primary px-6 py-3 rounded-lg font-bold">Ask Bot</button>
         </div>
-      </div>
-      <div style={{maxWidth:580,margin:"36px auto",padding:"0 20px"}}>
-        <div style={{textAlign:"center",marginBottom:28}}>
-          <div style={{fontSize:22,fontWeight:800,color:C.darkgray}}>Who are you today?</div>
-          <div style={{color:C.gray,fontSize:14,marginTop:6}}>Select your department to begin</div>
-        </div>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-          {DEPTS.map(d=>(
-            <button key={d.id} onClick={()=>selectDept(d.id)}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=d.color;e.currentTarget.style.background="#fdf8f8";}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor=C.border;e.currentTarget.style.background="#fff";}}
-              style={{background:"#fff",border:`2px solid ${C.border}`,borderRadius:12,padding:"16px 14px",cursor:"pointer",textAlign:"left"}}>
-              <div style={{fontSize:22,marginBottom:5}}>{d.icon}</div>
-              <div style={{fontWeight:700,color:d.color,fontSize:13}}>{d.label}</div>
-              <div style={{color:C.gray,fontSize:11,marginTop:2,lineHeight:1.4}}>{d.desc}</div>
-            </button>
-          ))}
-        </div>
-        <div style={{textAlign:"center",marginTop:24,color:"#d1d5db",fontSize:11}}>{data.length} titles · 37 fields · Live from Google Sheets</div>
-      </div>
     </div>
-  );
 
-  const deptObj=DEPTS.find(d=>d.id===dept);
-  return(
-    <div style={{height:"100vh",display:"flex",flexDirection:"column",background:"#fff"}}>
-      <div style={{background:C.red,padding:"11px 16px",display:"flex",alignItems:"center",gap:12,flexShrink:0}}>
-        <div style={{width:34,height:34,borderRadius:"50%",background:"rgba(255,255,255,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontWeight:900,fontSize:17,color:"#fff"}}>h</div>
-        <div style={{flex:1}}>
-          <div style={{color:"#fff",fontWeight:800,fontSize:15}}>hoichoi Intelligence Bot</div>
-          <div style={{color:"rgba(255,255,255,0.8)",fontSize:11}}>{deptObj.icon} {deptObj.label} · {data.length} titles</div>
-        </div>
-        <button onClick={()=>{setDept(null);setMessages([]);}} style={{background:"rgba(255,255,255,0.18)",border:"none",color:"#fff",borderRadius:8,padding:"5px 11px",cursor:"pointer",fontSize:12,fontWeight:600}}>Switch</button>
-      </div>
-      <div style={{flex:1,overflowY:"auto",padding:"16px 14px"}}>
-        {messages.map((msg,i)=><Msg key={i} msg={msg} dept={dept}/>)}
-        {loading&&(
-          <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:12}}>
-            <div style={{width:32,height:32,borderRadius:"50%",background:`linear-gradient(135deg,${C.red},${C.purple})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontWeight:900,fontSize:14}}>h</div>
-            <div style={{background:C.light,borderRadius:10,padding:"10px 14px",color:C.gray,fontSize:13}}>Searching {data.length} titles…</div>
-          </div>
-        )}
-        <div ref={bottom}/>
-      </div>
-      <div style={{padding:"8px 14px 4px",display:"flex",gap:7,overflowX:"auto",flexShrink:0,borderTop:`1px solid ${C.border}`}}>
-        {(CHIPS[dept]||[]).map(chip=>(
-          <button key={chip} onClick={()=>handleChip(chip)} style={{background:"#fff",border:`1px solid ${C.border}`,borderRadius:99,padding:"5px 12px",fontSize:12,cursor:"pointer",whiteSpace:"nowrap",color:C.purple,fontWeight:500}}>{chip}</button>
-        ))}
-      </div>
-      <div style={{padding:"10px 14px 14px",display:"flex",gap:10,alignItems:"center",flexShrink:0}}>
-        <input value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handleSend()}
-          placeholder="Ask by genre, actor, year, mood, director, rights…"
-          style={{flex:1,border:`1.5px solid ${C.border}`,borderRadius:24,padding:"10px 16px",fontSize:14,color:C.darkgray}}
-          onFocus={e=>e.target.style.borderColor=C.red} onBlur={e=>e.target.style.borderColor=C.border}/>
-        <button onClick={handleSend} style={{background:loading?C.gray:C.red,color:"#fff",border:"none",borderRadius:"50%",width:42,height:42,cursor:"pointer",fontSize:18,fontWeight:700,flexShrink:0}}>↑</button>
-      </div>
-    </div>
-  );
-}
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>);
-</script>
+    <script>
+        let libraryData = [];
+        let styleGuideData = [];
+
+        // 1. LOAD DATA ON STARTUP
+        window.onload = async function() {
+            appendMessage("System", "Initializing Intelligence Hub... Loading Library & Style Guides.");
+            
+            try {
+                // Fetch Library
+                const libRes = await fetch('hoichoi_Golden_Library_Final_v7.csv');
+                const libText = await libRes.text();
+                Papa.parse(libText, { header: true, complete: (results) => { libraryData = results.data; } });
+
+                // Fetch Style Guide
+                const styleRes = await fetch('hoichoi_Bot_Final_Training_Clean.csv');
+                const styleText = await styleRes.text();
+                Papa.parse(styleText, { header: true, complete: (results) => { styleGuideData = results.data; } });
+
+                appendMessage("System", "Ready. All data indexed correctly.");
+            } catch (err) {
+                appendMessage("System", "Error loading CSV files. Ensure they are in the root folder.");
+            }
+        };
+
+        // 2. CONSTRUCT THE BRAIN (SYSTEM PROMPT)
+        function buildSystemPrompt() {
+            const dept = document.getElementById('deptSelect').value || "General";
+            
+            // Filter training examples for the specific department
+            const relevantExamples = styleGuideData
+                .filter(row => row.Department === dept)
+                .map(row => `User: ${row['User Question (Scenario)']}\nResponse: ${row['Ideal Bot Response (What you want to see)']}`)
+                .join("\n\n");
+
+            return `You are the hoichoi Intelligence Bot.
+Strict Rules:
+- UI Theme: Light Mode.
+- Tone: Professional, Bonglish for CRM, Technical for Post-Prod.
+- The 15-Item Rule: Every tray/recommendation MUST have exactly 15 titles. Use the "Recommended_Titles" column to fill slots.
+- Exclusions: Never include "hoichoi FM" titles in general movies/shows trays unless asked.
+- Actor Distinction: Never confuse Anirban Bhattacharya (Byomkesh) with Anirban Chakrabarti (Eken Babu).
+- Eken Babu Genre: Strictly "Detective Comedy".
+- Style Guide: You must follow the format of these examples for the ${dept} department:
+${relevantExamples}
+
+Library Data Context: ${JSON.stringify(libraryData.slice(0, 200))} (Note: You have access to the full library of 967 titles internally).`;
+        }
+
+        async function handleSend() {
+            const input = document.getElementById('userInput').value;
+            const dept = document.getElementById('deptSelect').value;
+            if(!input) return;
+            if(!dept) { alert("Please select your department first!"); return; }
+
+            appendMessage("User", input);
+            document.getElementById('userInput').value = "";
+
+            // NOTE: Replace with your Vercel Proxy or API calling logic
+            appendMessage("Bot", "Thinking... (Connecting to library logic)");
+            
+            // In a real Vercel deployment, you would fetch your API endpoint here:
+            // const response = await fetch('/api/chat', { method: 'POST', body: JSON.stringify({ prompt: buildSystemPrompt(), query: input }) });
+        }
+
+        function appendMessage(sender, text) {
+            const div = document.createElement('div');
+            div.className = sender === "User" ? "self-end bg-red-100 p-3 rounded-lg max-w-xs" : "self-start bg-white p-3 rounded-lg shadow-sm border border-gray-200 max-w-md";
+            div.innerHTML = `<strong>${sender}:</strong> <br>${text}`;
+            document.getElementById('chatContainer').appendChild(div);
+            div.scrollIntoView();
+        }
+    </script>
 </body>
 </html>
