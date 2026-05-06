@@ -1,124 +1,30 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>hoichoi Intelligence Bot v7</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    <style>
-        :root {
-            --hoichoi-red: #d20820;
-            --hoichoi-purple: #6d0550;
-        }
-        body { background-color: #ffffff; color: #1a1a1a; font-family: sans-serif; }
-        .header { background-color: var(--hoichoi-red); color: white; }
-        .btn-primary { background-color: var(--hoichoi-red); color: white; }
-        .btn-secondary { background-color: var(--hoichoi-purple); color: white; }
-        .chat-box { height: 70vh; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px; }
-    </style>
-</head>
-<body class="p-4 md:p-8">
-
-    <div class="max-w-4xl mx-auto">
-        <header class="header p-6 rounded-t-lg shadow-lg flex justify-between items-center">
-            <h1 class="text-2xl font-bold">hoichoi Intelligence Bot <span class="text-sm font-light">v7.0</span></h1>
-            <select id="deptSelect" class="bg-white text-black p-2 rounded text-sm">
-                <option value="">Select Your Department</option>
-                <option value="CRM">CRM</option>
-                <option value="Social Media">Social Media</option>
-                <option value="Content Programming">Content Programming</option>
-                <option value="Content Marketing">Content Marketing</option>
-                <option value="Branding">Branding</option>
-                <option value="Edit & Graphics">Edit & Graphics</option>
-                <option value="Post Production">Post Production</option>
-            </select>
-        </header>
-
-        <div id="chatContainer" class="chat-box p-4 bg-gray-50 flex flex-col gap-4">
-            <div class="bg-white p-3 rounded shadow-sm border-l-4 border-red-600">
-                Hello! Select your department above and ask me anything about the hoichoi library.
-            </div>
-        </div>
-
-        <div class="mt-4 flex gap-2">
-            <input type="text" id="userInput" placeholder="e.g. Suggest a tray of 15 thrillers..." class="flex-1 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-red-600">
-            <button onclick="handleSend()" id="sendBtn" class="btn-primary px-6 py-3 rounded-lg font-bold">Ask Bot</button>
-        </div>
-    </div>
-
     <script>
-        let libraryData = [];
-        let styleGuideData = [];
+        let libraryCSV = "";
+        let styleGuideCSV = "";
 
-        // 1. LOAD DATA ON STARTUP
-        window.onload = async function() {
-            appendMessage("System", "Initializing Intelligence Hub... Loading Library & Style Guides.");
-            
+        // Your base Cloudflare link
+        const CLOUDFLARE_WORKER_URL = 'https://steep-hat-cf4f.ipsita-hoichoi.workers.dev/';
+
+        window.onload = async () => {
             try {
-                // Fetch Library
-                const libRes = await fetch('hoichoi_Golden_Library_Final_v7.csv');
-                const libText = await libRes.text();
-                Papa.parse(libText, { header: true, complete: (results) => { libraryData = results.data; } });
-
-                // Fetch Style Guide
-                const styleRes = await fetch('hoichoi_Bot_Final_Training_Clean.csv');
-                const styleText = await styleRes.text();
-                Papa.parse(styleText, { header: true, complete: (results) => { styleGuideData = results.data; } });
-
-                appendMessage("System", "Ready. All data indexed correctly.");
-            } catch (err) {
-                appendMessage("System", "Error loading CSV files. Ensure they are in the root folder.");
+                // Fetch Library using the parameter
+                const libRes = await fetch(CLOUDFLARE_WORKER_URL + '?type=library');
+                libraryCSV = await libRes.text();
+                
+                // Fetch Style Guide using the parameter
+                const styleRes = await fetch(CLOUDFLARE_WORKER_URL + '?type=style');
+                styleGuideCSV = await styleRes.text();
+                
+                // Visual feedback that it's working
+                if (libraryCSV.length > 100 && styleGuideCSV.length > 100) {
+                    document.getElementById('statusDot').classList.replace('bg-red-500', 'live-indicator');
+                    document.getElementById('statusDot').title = "All Systems Online";
+                    appendMessage("System", "hoichoi Bot is Live. Library and Style Guide synced successfully.");
+                }
+            } catch (e) {
+                appendMessage("System", "Connection Error: Check Cloudflare Worker settings.");
             }
         };
-
-        // 2. CONSTRUCT THE BRAIN (SYSTEM PROMPT)
-        function buildSystemPrompt() {
-            const dept = document.getElementById('deptSelect').value || "General";
-            
-            // Filter training examples for the specific department
-            const relevantExamples = styleGuideData
-                .filter(row => row.Department === dept)
-                .map(row => `User: ${row['User Question (Scenario)']}\nResponse: ${row['Ideal Bot Response (What you want to see)']}`)
-                .join("\n\n");
-
-            return `You are the hoichoi Intelligence Bot.
-Strict Rules:
-- UI Theme: Light Mode.
-- Tone: Professional, Bonglish for CRM, Technical for Post-Prod.
-- The 15-Item Rule: Every tray/recommendation MUST have exactly 15 titles. Use the "Recommended_Titles" column to fill slots.
-- Exclusions: Never include "hoichoi FM" titles in general movies/shows trays unless asked.
-- Actor Distinction: Never confuse Anirban Bhattacharya (Byomkesh) with Anirban Chakrabarti (Eken Babu).
-- Eken Babu Genre: Strictly "Detective Comedy".
-- Style Guide: You must follow the format of these examples for the ${dept} department:
-${relevantExamples}
-
-Library Data Context: ${JSON.stringify(libraryData.slice(0, 200))} (Note: You have access to the full library of 967 titles internally).`;
-        }
-
-        async function handleSend() {
-            const input = document.getElementById('userInput').value;
-            const dept = document.getElementById('deptSelect').value;
-            if(!input) return;
-            if(!dept) { alert("Please select your department first!"); return; }
-
-            appendMessage("User", input);
-            document.getElementById('userInput').value = "";
-
-            // NOTE: Replace with your Vercel Proxy or API calling logic
-            appendMessage("Bot", "Thinking... (Connecting to library logic)");
-            
-            // In a real Vercel deployment, you would fetch your API endpoint here:
-            // const response = await fetch('/api/chat', { method: 'POST', body: JSON.stringify({ prompt: buildSystemPrompt(), query: input }) });
-        }
-
-        function appendMessage(sender, text) {
-            const div = document.createElement('div');
-            div.className = sender === "User" ? "self-end bg-red-100 p-3 rounded-lg max-w-xs" : "self-start bg-white p-3 rounded-lg shadow-sm border border-gray-200 max-w-md";
-            div.innerHTML = `<strong>${sender}:</strong> <br>${text}`;
-            document.getElementById('chatContainer').appendChild(div);
-            div.scrollIntoView();
-        }
+        
+        // ... rest of the askBot logic remains the same
     </script>
-</body>
-</html>
