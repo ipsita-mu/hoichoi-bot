@@ -1,0 +1,122 @@
+Department,User Question (Scenario),Bot Logic (Hidden thinking),Ideal Bot Response (What you want to see)
+CRM,"""Suggest content for a notification for detective fans.""",Filter Genre for 'Detective' + sort by Binge_Score.,Title: Detective-der Masterclass! 🕵️ Body: Eken Babu theke Byomkesh—shob ekebare ekhane. Dekhun ekhon-i! Titles: List top 5.
+CRM,"""What can I suggest someone who has just finished watching Sampurna?""","Filter Title = Sampurna, Genre, match with Recommended_Titles","Title: Watch more like Sampurna; In a table, provide 4-5 similar shows."
+Content Marketing,"""Give me a list of all 2025 World Premieres.""","Filter Content_Type = 'Movie', Release_Type = 'World Premiere' AND Theatrical_Release_Year = 2025.","Display a clean table with: Title, Live Date, and Monetization Model. The table can be copied for external Excel sheet."
+Content Marketing,"""Give me a list of 2026 shows so far.""","Filter Content_Type = 'Show', Theatrical_Release_Year = 2026, Hoichoi_Live_Date = all with 2026 year's date","Display a clean table with: Title, Live Date, and Monetization Model. The table can be copied for external Excel sheet."
+Content Marketing,"""Give me a list of all BD content.""","Filter Content_Type = 'Show', Theatrical_Release_Year = 2026, Hoichoi_Live_Date = all with 2026 year's date","Display a clean table with: Title, Live Date, and Monetization Model. The table can be copied for external Excel sheet."
+Social Media,"""Suggest 15 titles for a 'Strong Women' carousel post.""",Search AI_Generated_Keywords for 'Woman-led' or 'Social Drama'.,List titles with Cast details + include a Usage Warning from the Promotional_Rights column in a simple table. Provide only available content on hoichoi.
+Social Media,"""Give me a list of movies starring Dev.""","Search Title, Cast = contains Dev, Available_on_hoichoi = Yes","List titles in a clean table with: Title, Year, Live status, and monetization model."
+Content Programming,"""Suggest me Romantic content containing both SVOD and FVOD shows and movies.""","Search Content_Type, Genre, Sub_Genre, AI_Generated_Keywords, and Monetization_Model.","List in a clear table after filtering Movie and Show from the Content_Type column, and then go through Genre, Sub_Genre and AI_Generated_Keywords to get all Romantic content, and then mention their Monetization_Model. Give everything in a clear table format."
+Content Programming,"""Suggest me a list of shows and movies related to courtroom drama or thriller.""","Search Content_Type (only movie and show), Genre, Sub_Genre, and AI_Generated_Keywords","List in a clear table after filtering Movie and Show from the Content_Type column, and then go through Genre, Sub_Genre and AI_Generated_Keywords to get all legal drama or thriller. Give everything in a clear table format. Only provide the content which are Yes in Available_on_hoichoi."
+Content Programming,"""Give me the list of movies which are getting expired in next six months.""","Search Content_Type (only movie), and Hoichoi_Ending_Date = Ranging between Today's date + 6 months in future","List in a clear table with Movie titles, their end dates"
+Content Programming,"""List down the content inspired by the stories of Rabindranath Tagore.""","Search Content_Type and Available_on_hoichoi; give the following content - Detective, Laboratory, Manbhanjan, Chokher Bali, Mrinaler Chithi, Chitrangada - The Crowning Wish, Ghawre Bairey Aaj, and other content written by Rabindranath Tagore from other content segments (hoichoi FM).","List everything down in a clear table with content name, type, availability on hoichoi."
+Branding,"""Give me a list of content associated with Sunrise.""","Search Content_Type (only Branded), Brand_Name = Sunrise","List everything down in a clear table with content name, type [if Season_Number = N/A, then Branded Mini, if Season_Number = 1 or more, then Branded Show], release date"
+Branding,"""Give me a list of content directed by Sayantan Dhara.""","Search Content_Type (only Branded), Director = Sayantan Dhara",List everything down in a clear table
+Edit & Graphics,"""Give me a list of feel good drama.""","Search Title, Primary_Mood = Feel-good",List everything in a clear list
+Post Production,"""Give me a list of shows released in 2025 with their total duration and episode count.""","Search Content_Type = Show and Branded, Theatrical_Release_Year = 2025, Season_Number, Total_Episodes, Duration_Total_or_Per_Ep ",List everything in a clean table
+Post Production,"""Give me a list of all the original shows of hoichoi.""","Search Content_Type = Show, Theatrical_Release_Year, Season_Number, Total Episodes, Duration_Total_or_Per_Ep",List everything in a clean table with all the shows that are live up until today's date
+CRM,Suggest a re-engagement notification for inactive horror fans.,"Filter Genre = 'Horror', sort by Binge_Score.",Title: Ekla Dekhar Shahosh Ache? 👻 Body: Midnight horror binge start korun ekhon-i. Shob-cheye bhoyonkor golpo gulo apnar jonno. Titles: List top 5 horror.
+CRM,Suggest a push notification for rainy weather mood.,Filter Primary_Mood = 'Melancholic' or Genre = 'Romance'.,"Title: Brishti, Coffee ar Hoichoi! ☕🌧️ Body: Monsoon mood er shera golpo gulo apnar jonno ready. Dekhun ekhon-i. Titles: List top 5 Romance/Drama."
+CRM,What can I suggest to someone who finished 'Eken Babu'?,"Filter Genre = 'Detective Comedy', match Recommended_Titles.","Title: Eken Babu-r por eibar ki? 🔍 Body: Jodi quirky detective bhalobashen, tobe ei list-ta miss korben na! Titles: 5 Detective Comedies."
+CRM,Suggest content for users who love classical literature.,Filter Literature_Adapted = 'Yes'.,Title: Boi-er Pata theke Screen-e! 📚 Body: Tagore theke Sarat Chandra—shera shob adaptation ekhon apnar haat-er muthoy. Titles: Top 5 Classics.
+CRM,Suggest a notification for Sunday morning family watch.,Filter Family_Element_Score > 8.,Title: Shobai Mile Hoichoi! 👨‍👩‍👧‍👦 Body: Sunday morning mane family marathon. Dekhun ei lighthearted shows gulo. Titles: 5 Family titles.
+CRM,Suggest content for 'Anirban Bhattacharya' fans.,Filter Cast contains 'Anirban Bhattacharya'.,Title: The Anirban Bhattacharya Special! 🔥 Body: Icon-er iconic performances miss korben na. Watch Byomkesh to Mohomaya. Titles: List top 5.
+CRM,Suggest a binge-watch for a long weekend.,Filter Binge_Score > 9.,Title: Weekend Binge Plan Ready! 🚀 Body: Catch up on the most addictive shows of the season. Titles: List top 5 high-binge content.
+CRM,Suggest content for a 'Nostalgia' theme notification.,Filter Release_Year < 2010.,Title: Revisit the Gold! ✨ Body: Childhood favorites theke classic hits—firey jan shei purono dine. Titles: List top 5.
+CRM,Suggest content for International Mother Language Day.,Filter Is_Bangladeshi = 'Yes'.,Title: Matribhashar Joygaan! 🇧🇩 Body: Bhashar mashe dekhun hoichoi-er shera Bangladeshi collection. Titles: List top 5 BD titles.
+CRM,Suggest a notification for thriller lovers.,Filter Genre contains 'Thriller'.,Title: Shob Raat Ghumobar Jonno Noy! 🌙 Body: Nerve-wracking thrillers r shera list ready. Dive in now. Titles: List top 5 Thrillers.
+CRM,Suggest a 'New Season' alert for a popular show.,"Filter Season_Number > 1, sort by recent date.",Title: Notun Season Asche! 🎬 Body: Apnar favorite characters firey asche. Revisit the story before the new season drops. Titles: Top 1 recently updated show.
+CRM,Suggest 'Quick Watch' content (short duration).,Filter Duration_Total_or_Per_Ep < 25 min.,Title: Chotto Break-e Hoichoi! ⏱️ Body: 20 minute-er moddhye shera golpo dekhar jonno ei list-ta check korun. Titles: List top 5.
+CRM,Suggest content for an 'Underdog' success story.,"Search Synopsis for 'struggle', 'rise'.",Title: Against All Odds! 💪 Body: Inspiring stories of struggle and success. Watch the rise of the underdog. Titles: List top 5.
+CRM,Suggest 'Award Winning' movies for a classy segment.,Filter AI_Keywords contains 'Award'.,Title: The Award Winners! 🏆 Body: Critical acclaim ar bhalo golper perfect mix dekhun ekhane. Titles: List top 5.
+CRM,Suggest 'Late Night' psychological thriller.,Filter Sub_Genre = 'Psychological' and Genre = 'Thriller'.,Title: Mind-Bending Mysteries! 🧠 Body: Reveal the dark secrets this midnight. A psychological marathon awaits. Titles: List top 5.
+Content Marketing,Give me a list of all 2025 movies that are SVOD.,"Filter Content_Type = 'Movie', Release_Year = 2025, Monetization = 'SVOD'.","Clean Table: Title, Live Date, Lead Cast. Format for Excel."
+Content Marketing,List all Bangladeshi shows released in 2024.,"Filter Is_Bangladeshi = 'Yes', Content_Type = 'Show', Year = 2024.","Table with Title, Season Count, and Monetization Model."
+Content Marketing,Compare release count: 2024 vs 2025 World Premieres.,"Filter Release_Type = 'World Premiere', group by Year.",Summary statistics (Count) + Table of titles for both years.
+Content Marketing,Identify World Digital Premieres with 'No Restrictions' promo rights.,"Filter Release_Type = 'World Digital Premiere', Promo_Rights = 'no restrictions'.","Table with Title, Year, and Promo Status."
+Content Marketing,Provide a 2026 upcoming inventory of 'Original' shows.,"Filter Year = 2026, Content_Type = 'Show'.","Table with Title, Expected Live Date, and Lead Cast."
+Content Marketing,List all content produced by 'SVF'.,Filter Production_House = 'SVF'.,Complete inventory table for SVF produced content.
+Content Marketing,Which 2025 movies are FVOD?,"Filter Content_Type = 'Movie', Release_Year = 2025, Monetization = 'FVOD'.",Table with Title and Genre for free-to-watch campaign.
+Content Marketing,Show me the top 10 most binged shows of 2025.,"Filter Year = 2025, sort by Binge_Score DESC.","Table with Title, Binge Score, and Cast names."
+Content Marketing,Inventory check: Movies with Hindi titles available.,Filter Hindi_Title not N/A.,Table with Bengali Title and Hindi Title for cross-promo.
+Content Marketing,List of literature-based movies starring Prosenjit.,"Filter Literature_Adapted = 'Yes', Cast contains 'Prosenjit'.","Table with Title, Author Name, and Year."
+Content Marketing,Which Bangladeshi movies were theatrical vs direct-to-OTT?,"Filter Is_Bangladeshi = 'Yes', compare Release_Type.",Categorized table showing Title and Release Path.
+Content Marketing,List of all content with an age rating of 'A 18+'.,Filter Age_Rating = 'A 18+'.,"Table with Title, Genre, and Age Rating Descriptors."
+Content Marketing,Provide a 2024 summary of branded content releases.,"Filter Content_Type = 'Branded', Year = 2024.","Table with Title, Brand Name, and Duration."
+Content Marketing,Identify movies expiring on hoichoi in the next 60 days.,Filter Hoichoi_Ending_Date < Date+60.,Operational table with Title and Expiry Date.
+Content Marketing,List dubbed content available in Hindi.,Filter Languages contains 'Hindi'.,Table with Title and Dubbed Languages.
+Social Media,Suggest 15 titles for a 'Siblings Day' carousel.,"Search Synopsis for 'brother', 'sister', 'siblings'.",Tray Name: Bonds for Life. List 15 titles + usage warnings from Promo Rights.
+Social Media,Suggest 15 'Best Villain' highlight titles.,Filter AI_Keywords contains 'antagonist' or 'villain'.,Tray Name: Iconic Antagonists. List 15 titles + clip duration limits.
+Social Media,Carousel: 15 most talkative/funny characters (Eken Babu etc).,Filter Genre = 'Detective Comedy' or 'Comedy'.,Tray Name: Laughter Express. List 15 titles + usage warnings.
+Social Media,Suggest 15 titles for a 'Monsoon Romance' playlist.,"Filter Genre = 'Romance', Mood = 'Melancholic'.","Tray Name: Rain, Coffee & Romance. List 15 titles + usage warnings."
+Social Media,Carousel: Top 15 strong women characters.,Filter AI_Keywords contains 'Woman-led'.,Tray Name: Powerhouse Women. List 15 titles + usage warnings.
+Social Media,Give me 15 titles for a 'Spooky Nights' horror reel.,Filter Genre = 'Horror'.,Tray Name: Don't Watch Alone. List 15 titles + clip usage durations.
+Social Media,Suggest 15 titles for 'Historical/Period' fashion carousel.,Filter Genre = 'Period Drama'.,Tray Name: Timeless Aesthetics. List 15 titles + usage warnings.
+Social Media,Playlist: 15 songs/musical journey titles.,Filter AI_Keywords contains 'Musical' or 'Song'.,Tray Name: Rhythms of Bengal. List 15 titles + usage warnings.
+Social Media,Carousel: 15 childhood nostalgia (Animation/90s).,Filter Genre = 'Animation' or Year < 2000.,Tray Name: Relive the Magic. List 15 titles + usage warnings.
+Social Media,Suggest 15 titles for a 'Travel & Wanderlust' theme.,Filter Genre = 'Travel'.,Tray Name: The Great Escape. List 15 titles + usage warnings.
+Social Media,Carousel: 15 best climaxes (Twist endings).,Filter Ending_Type = 'Twist'.,Tray Name: Mind-Blowing Climax. List 15 titles + usage warnings.
+Social Media,Playlist: 15 shows with 'Sassy Mothers-in-law'.,Search Synopsis for 'mother-in-law'.,Tray Name: Queen of the House. List 15 titles + usage warnings.
+Social Media,Carousel: 15 'Modern City Life' (Urban aesthetics).,Filter AI_Keywords contains 'Urban'.,Tray Name: City Lights. List 15 titles + usage warnings.
+Social Media,Tray: 15 'Underdog Struggle' stories.,"Search Synopsis for 'struggle', 'rise'.",Tray Name: The Rise of Heroes. List 15 titles + usage warnings.
+Social Media,Carousel: 15 'Best of Bangladeshi' content.,Filter Is_Bangladeshi = 'Yes'.,Tray Name: Shera Bangladesh. List 15 titles + clip usage warnings.
+Content Programming,Suggest a 'Supernatural Suspense' tray (15 titles).,Filter Sub_Genre = 'Supernatural' and Genre = 'Thriller'.,Tray: Beyond the Veil (15 titles). Show Binge Score and Mood.
+Content Programming,Suggest a 'New Age Love' tray (15 titles).,"Filter Genre = 'Romance', Year > 2020.",Tray: Modern Romance (15 titles). Show Binge Score and Mood.
+Content Programming,Suggest an 'Edge of Seat' gritty crime tray.,"Filter Primary_Mood = 'Gritty', Genre = 'Crime'.",Tray: The Crime Files (15 titles).
+Content Programming,Suggest a 'Family Marathon' tray.,Filter Family_Element_Score > 9.,Tray: Shobai Mile Hoichoi (15 titles).
+Content Programming,Suggest a 'Classic Restoration' tray (Pre-1970s).,Filter Year < 1970.,Tray: Restored Masterpieces (15 titles).
+Content Programming,Suggest an 'Indie Cinema' spotlight tray.,Filter Production_House not 'SVF'.,Tray: The Indie Spotlight (15 titles).
+Content Programming,Suggest a 'Women in Front' (Woman-led) tray.,Filter AI_Keywords contains 'Woman-led'.,Tray: Leading Ladies (15 titles).
+Content Programming,Suggest a 'Literature to Screen' tray.,Filter Literature_Adapted = 'Yes'.,Tray: The Literary Vault (15 titles).
+Content Programming,Suggest a 'Social Awareness' drama tray.,Filter Sub_Genre = 'Social'.,Tray: Voices of Society (15 titles).
+Content Programming,Suggest a 'Childhood Favorites' (Kids) tray.,Filter Genre = 'Kids'.,Tray: KidZone Classics (15 titles).
+Content Programming,Suggest a 'Musical Journey' tray.,Filter AI_Keywords contains 'Musical'.,Tray: Melodic Memories (15 titles).
+Content Programming,Suggest a 'Coming of Age' teen drama tray.,Filter AI_Keywords contains 'Youth'.,Tray: Generation Next (15 titles).
+Content Programming,Suggest a 'Folk & Heritage' tray.,Filter Sub_Genre = 'Folk'.,Tray: Tales of the Soil (15 titles).
+Content Programming,Suggest a 'Political Intrigue' thriller tray.,Filter AI_Keywords contains 'Political'.,Tray: Power Games (15 titles).
+Content Programming,Suggest an 'International Hits' (Bangladeshi) tray.,Filter Is_Bangladeshi = 'Yes'.,Tray: Global Bengal (15 titles).
+Branding,Titles suitable for 'Dada Boudi Biryani' sponsorship.,Filter Genre = 'Lifestyle/Food' or high Family Score.,"Table with Title, Themes, and Cast (Urban focus)."
+Branding,Content for an FMCG (Home Goods) brand integration.,Filter Family_Element_Score > 9.,Table with Title and Narrative Tone (Feel-good/Light).
+Branding,List 2025 shows with high 'Brand Safety' (Family score).,"Filter Year = 2025, Family_Score > 9.",Table with Title and Genre.
+Branding,Which content features 'Prosenjit' or 'Jisshu' (High brand value)?,Filter Cast contains names.,Table with Title and Brand Value description.
+Branding,List branded content releasing in 2026.,"Filter Content_Type = 'Branded', Year = 2026.","Table with Title, Brand, and Expected Date."
+Branding,Identify content with 'Urban/Modern' visuals for tech brand synergy.,Filter AI_Keywords contains 'Urban'.,Table with Title and visual description.
+Branding,Content for a travel/tourism brand partnership.,Filter Genre = 'Travel'.,Table with Title and locations featured (from synopsis).
+Branding,Festive (Puja) themed content for retail brands.,Filter AI_Keywords contains 'Puja'.,Table with Title and festive vibe summary.
+Branding,Identify content for an 'Automotive' brand synergy.,"Search Synopsis for 'car', 'drive', 'journey'.",Table with Title and scene context.
+Branding,Content with 'Premium/Classy' tone for luxury brands.,Filter Narrative_Tone = 'Reflective' or 'Vibrant'.,Table with Title and Tone description.
+Branding,List branded mini-series released in 2024.,"Filter Content_Type = 'Branded', Season_Number = 'N/A'.",Table with Title and Brand Name.
+Branding,Which directors have directed the most branded content?,Group by Director for Content_Type = Branded.,Summary Table with Director name and count.
+Branding,List content associated with brand 'Sunrise'.,Filter Brand_Name = 'Sunrise'.,Full inventory for brand Sunrise.
+Branding,Identify content for 'Health/Fitness' brand synergy.,"Search Synopsis for 'sports', 'health', 'fitness'.",Table with Title and Genre.
+Branding,Suggest content for a 'Banking/Financial' brand integration.,"Search Synopsis for 'money', 'business', 'success'.",Table with Title and Genre.
+Edit & Graphics,List all content with 'Gritty' visuals for trailer edit.,Filter Primary_Mood = 'Gritty'.,"List with Title, Tone, and Trailer Links."
+Edit & Graphics,Which horror titles have 'Low-key' spooky lighting?,Filter Genre = 'Horror'.,List with Title and Trailer Links for spooky montage.
+Edit & Graphics,List titles for 'Saturated/Vibrant' color grading reel.,Filter Narrative_Tone = 'Vibrant'.,List with Title and Trailer Links.
+Edit & Graphics,Trailers for all 2026 Bangladeshi content.,Filter Year = 2026 and Is_Bangladeshi = 'Yes'.,Table with Title and Trailer Link.
+Edit & Graphics,Clips limits for the 'Laughter Express' tray titles.,"Filter list of titles, cross-ref Promo Rights.",Table with Title and max clip duration.
+Edit & Graphics,Show me trailers for all Period Dramas.,Filter Genre = 'Period Drama'.,Table with Title and Trailer Link.
+Edit & Graphics,Visuals check: Cinematic wide shots.,Filter AI_Keywords contains 'Cinematic'.,List with Title and Trailer Link.
+Edit & Graphics,Identify fast-paced action/thriller trailers.,Filter Narrative_Tone = 'Suspenseful'.,List with Title and Trailer Link.
+Edit & Graphics,Which period dramas have an 'Antique/Sepia' tone?,"Search Synopsis for 'historical', 'classic'.",Table with Title and Narrative Tone.
+Edit & Graphics,List content with 'Urban/Modern' aesthetic.,Filter AI_Keywords contains 'Urban'.,Table with Title and Trailer Link.
+Edit & Graphics,Visuals check: Rural/Village beauty.,Filter AI_Keywords contains 'Rural'.,Table with Title and Trailer Link.
+Edit & Graphics,Show me trailers for all Prosenjit movies.,Filter Cast contains 'Prosenjit'.,Table with Title and Trailer Link.
+Edit & Graphics,Which content has VFX heavy shots?,Filter AI_Keywords contains 'VFX'.,Table with Title and Trailer Link.
+Edit & Graphics,List titles with 'Melancholic/Blue' visual tones.,Filter Primary_Mood = 'Melancholic'.,Table with Title and Trailer Link.
+Edit & Graphics,Compilation: Best of scenic Bengal (Visuals).,"Search Keywords for 'Scenic', 'Nature'.",Table with Title and Trailer Link.
+Post Production,Total episode count and duration for 2025 shows.,"Filter Year = 2025, Content_Type = 'Show'.","Master Table: Title, Episodes, Total Duration."
+Post Production,Audit: Missing Synopsis (Short) entries.,Filter Synopsis_Short = 'N/A' or empty.,Table of Titles needing metadata updates.
+Post Production,Check for Season_Number consistency in 'Indu' series.,Filter Title contains 'Indu'.,Detailed table with Season vs Ep counts.
+Post Production,Inventory of Age Ratings for all 2026 content.,Filter Year = 2026.,Table with Title and Age Rating.
+Post Production,Missing Trailer Link audit.,Filter Trailer_Link = 'N/A'.,Table of Titles with missing links for Graphics team.
+Post Production,Language check: Hindi audio vs Subtitle availability.,Filter Languages column for breakdown.,Detailed table with Title and Audio/Subtitle status.
+Post Production,Hoichoi Ending Date check for 'Library' content.,Filter Release_Type = 'Library'.,Table with Title and Ending Date.
+Post Production,Duration check for World Premiere movies.,Filter Release_Type = 'World Premiere'.,Table with Title and total runtime.
+Post Production,Audit of Age Rating descriptors across the library.,Filter Age_Rating_Descriptors column.,Table with Title and detailed descriptors.
+Post Production,Identify titles with missing 'Bengali_Title'.,Filter Bengali_Title = 'N/A'.,Table for translation updates.
+Post Production,Discrepancy check: Theatrical Year vs Hoichoi Live Year.,Compare Year vs Live_Date.,Table highlighting mismatch cases.
+Post Production,List of all Bangladeshi content ep counts.,Filter Is_Bangladeshi = 'Yes'.,Table with Title and Total Episodes.
+Post Production,Original show release date log (2024-2026).,Filter Shows within year range.,Table with Title and Hoichoi Live Date.
+Post Production,License expiry report: Next 90 days.,Filter Hoichoi_Ending_Date < CurrentDate+90.,Operational Table for Acquisition team.
+Post Production,Check for missing 'Writer' names in adaptations.,Filter Literature_Adapted = 'Yes' and Writer = 'N/A'.,Action list for metadata team.
