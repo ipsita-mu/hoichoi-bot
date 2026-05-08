@@ -1,30 +1,34 @@
-    <script>
-        let libraryCSV = "";
-        let styleGuideCSV = "";
+addEventListener('fetch', event => {
+  event.respondWith(handleRequest(event.request))
+})
 
-        // Your base Cloudflare link
-        const CLOUDFLARE_WORKER_URL = 'https://steep-hat-cf4f.ipsita-hoichoi.workers.dev/';
+async function handleRequest(request) {
+  const { searchParams } = new URL(request.url)
+  const type = searchParams.get('type') 
+  
+  // The base URL for your published Google Sheet
+  const base = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQjfr30Iv-Sx9wP5lLmKWqJe94HE3dk-gITa2nBZiAesvkCQ4eXjLyrXQ54s8nDcvSN8eAr3PpjHGjG/pub?output=csv&single=true&gid="
 
-        window.onload = async () => {
-            try {
-                // Fetch Library using the parameter
-                const libRes = await fetch(CLOUDFLARE_WORKER_URL + '?type=library');
-                libraryCSV = await libRes.text();
-                
-                // Fetch Style Guide using the parameter
-                const styleRes = await fetch(CLOUDFLARE_WORKER_URL + '?type=style');
-                styleGuideCSV = await styleRes.text();
-                
-                // Visual feedback that it's working
-                if (libraryCSV.length > 100 && styleGuideCSV.length > 100) {
-                    document.getElementById('statusDot').classList.replace('bg-red-500', 'live-indicator');
-                    document.getElementById('statusDot').title = "All Systems Online";
-                    appendMessage("System", "hoichoi Bot is Live. Library and Style Guide synced successfully.");
-                }
-            } catch (e) {
-                appendMessage("System", "Connection Error: Check Cloudflare Worker settings.");
-            }
-        };
-        
-        // ... rest of the askBot logic remains the same
-    </script>
+  // GIDs for your specific tabs
+  const LIBRARY_GID = "737076217"; 
+  const STYLE_GUIDE_GID = "811426121"; // <--- Replace this with the number you just found
+
+  let finalUrl = (type === 'style') ? base + STYLE_GUIDE_GID : base + LIBRARY_GID;
+
+  try {
+    const response = await fetch(finalUrl)
+    const text = await response.text()
+    
+    return new Response(text, {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/csv; charset=utf-8',
+        'Access-Control-Allow-Origin': '*', // This allows the bot to read the data
+        'Access-Control-Allow-Methods': 'GET',
+        'Cache-Control': 'no-cache'
+      }
+    })
+  } catch (err) {
+    return new Response("Error fetching data", { status: 500 })
+  }
+}
